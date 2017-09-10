@@ -1,4 +1,5 @@
 extern crate ggez;
+extern crate uuid;
 use ggez::event::Keycode;
 use ggez::{GameResult, Context};
 use ggez::graphics;
@@ -6,15 +7,31 @@ use std::time::Duration;
 use main_state::MainState;
 use std::collections::HashMap;
 use states::GameState;
+use states::entities::entity::Entity;
+use states::entities::player::new_player;
+use states::components::position::Position;
+use uuid::Uuid;
+
+struct World {
+    components: HashMap<Uuid, Position>,
+    entities: Vec<Entity>,
+}
 
 pub struct PlayState {
     text: graphics::Text,
+    world: World,
 }
 
 impl PlayState {
     pub fn new(font: &graphics::Font, ctx: &mut Context) -> Self {
+        let mut components = HashMap::new();
+        let entities = vec![new_player(&mut components, 0.0, 0.0)];
         PlayState {
             text: graphics::Text::new(ctx, "Testing", &font).unwrap(),
+            world: World {
+                components,
+                entities,
+            },
         }
     }
 }

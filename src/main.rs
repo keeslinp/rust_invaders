@@ -1,4 +1,5 @@
 extern crate ggez;
+extern crate uuid;
 mod main_state;
 mod states;
 
