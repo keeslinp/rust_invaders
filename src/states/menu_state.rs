@@ -57,7 +57,7 @@ impl GameState for MenuState {
         Ok(0)
     }
 
-    fn draw(&self, state: &MainState, ctx: &mut Context) -> GameResult<()> {
+    fn draw(&self, _: &MainState, ctx: &mut Context) -> GameResult<()> {
         for (index, item) in self.menu_items.iter().enumerate() {
             let width = item.width() as f32;
             let height = item.height() as f32;

@@ -4,6 +4,7 @@ use ggez::event::Keycode;
 use ggez::event::Mod;
 use ggez::{GameResult, Context};
 use ggez::graphics;
+use std::rc::Rc;
 use std::time::Duration;
 use states::menu_state::MenuState;
 use states::play_state::PlayState;
@@ -24,11 +25,11 @@ pub struct MainState {
 // that you can override if you wish, but the defaults are fine.
 impl MainState {
     pub fn new(ctx: &mut Context) -> GameResult<MainState> {
-        let font = graphics::Font::new(ctx, "/OpenSans-Regular.ttf", 48)?;
+        let font = Rc::new(graphics::Font::new(ctx, "/OpenSans-Regular.ttf", 48)?);
         let s = MainState {
             frames: 0,
             keys: HashMap::new(),
-            states: vec![Box::new(MenuState::new(&font, ctx)), Box::new(PlayState::new(&font, ctx))],
+            states: vec![Box::new(MenuState::new(&font, ctx)), Box::new(PlayState::new(ctx))],
             state: 0,
         };
         Ok(s)
@@ -54,11 +55,11 @@ impl event::EventHandler for MainState {
         Ok(())
     }
 
-    fn key_down_event(&mut self, keycode: Keycode, keymod: Mod, repeat: bool) {
+    fn key_down_event(&mut self, keycode: Keycode, _: Mod, _: bool) {
         self.keys.insert(keycode, true);
     }
 
-    fn key_up_event(&mut self, keycode: Keycode, keymod: Mod, repeat: bool) {
+    fn key_up_event(&mut self, keycode: Keycode, _: Mod, _: bool) {
         self.keys.insert(keycode, false);
     }
 }
