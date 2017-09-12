@@ -10,7 +10,7 @@ const HEIGHT:f32 = 20.0;
 
 pub struct Bullet {
     pub position: Position,
-    velocity: Velocity,
+    pub velocity: Velocity,
 }
 
 impl Bullet {
@@ -29,7 +29,7 @@ impl Bullet {
     }
     pub fn update(&mut self, invaders: &mut HashMap<Uuid, Invader>, invaders_to_remove: &mut Vec<Uuid>, bullets_to_remove: &mut Vec<Uuid>, bullet_key: &Uuid, delta: Duration) {
         self.position.update(&self.velocity, delta);
-        if self.position.y < 5.0 {
+        if self.position.y < 5.0 || self.position.y > 600.0 {
             bullets_to_remove.push(bullet_key.clone());
         } else if self.velocity.dy < 0.0 {
             for (key, invader) in invaders.iter_mut() {

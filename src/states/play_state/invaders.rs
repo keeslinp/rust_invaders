@@ -11,6 +11,7 @@ pub struct Invaders {
     pub invaders: HashMap<Uuid, Invader>,
     velocity: Velocity,
     fire_time: Duration,
+    pub move_count: u8,
 }
 
 fn create_invaders() -> HashMap<Uuid, Invader> {
@@ -29,6 +30,7 @@ impl Invaders {
             invaders: create_invaders(),
             velocity: Velocity::new(0.1, 0.0),
             fire_time: Duration::new(1, 0),
+            move_count: 0,
         }
     }
 
@@ -38,6 +40,7 @@ impl Invaders {
     }
 
     fn move_all_down(&mut self) {
+        self.move_count += 1;
         for (_, invader) in self.invaders.iter_mut() {
             invader.move_down();
         }
@@ -75,5 +78,9 @@ impl Invaders {
             invader.draw(ctx)?;
         }
         Ok(())
+    }
+
+    pub fn has_landed(&self) -> bool {
+        self.move_count > 4
     }
 }

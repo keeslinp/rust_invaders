@@ -31,7 +31,7 @@ impl Invader {
     pub fn fire(&self, bullets: &mut HashMap<Uuid, Bullet>) {
         let (x, _) = self.get_center();
         let y = self.position.y + HEIGHT;
-        bullets.insert(Uuid::new_v4(), Bullet::new(x, y, 1.0));
+        bullets.insert(Uuid::new_v4(), Bullet::new(x, y, 0.2));
     }
 }
 

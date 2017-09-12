@@ -29,6 +29,16 @@ impl Player {
         self.position.update(&self.velocity, delta);
     }
 
+    pub fn check_for_bullets(&mut self, bullets: &HashMap<Uuid, Bullet>) -> Option<Uuid> {
+        let killer = bullets.iter()
+            .filter(|&(_, bullet)| bullet.velocity.dy > 0.0)
+            .find(|&(_, bullet)| bullet.position.x > self.position.x && bullet.position.x < self.position.x + WIDTH && bullet.position.y + 20.0 > self.position.y && bullet.position.y + 20.0 < self.position.y + HEIGHT).map(|(key, _)| key.clone());
+        if killer.is_some() {
+            self.lives -= 1;
+        }
+        killer
+    }
+
     pub fn fire(&self, bullets: &mut HashMap<Uuid, Bullet>) {
         let (x, _) = self.get_center();
         let y = self.position.y;

@@ -56,6 +56,13 @@ impl PlayState {
         graphics::draw(ctx, &lives_text, dest_point, 0.0)?;
         Ok(())
     }
+
+    fn draw_losing_screen(&self, ctx: &mut Context) -> GameResult<()> {
+        let dest_point = graphics::Point::new(350.0, 200.0);
+        let lives_text = graphics::Text::new(ctx, "Game Over", &self.font)?;
+        graphics::draw(ctx, &lives_text, dest_point, 0.0)?;
+        Ok(())
+    }
 }
 
 impl PlayState {
@@ -65,6 +72,10 @@ impl PlayState {
         for (key, bullet) in (&mut self.world.bullets).iter_mut() {
             bullet.update(&mut self.world.invaders.invaders, &mut enemies_to_remove, &mut bullets_to_remove, key, delta);
         }
+        match self.world.player.check_for_bullets(&self.world.bullets) {
+            Some(key) => bullets_to_remove.push(key),
+            _ => {}
+        }
         for key in bullets_to_remove {
             self.world.bullets.remove(&key);
         }
@@ -73,16 +84,22 @@ impl PlayState {
             self.world.invaders.invaders.remove(&key);
         }
     }
+
+    fn did_lose(&self) -> bool {
+        self.world.invaders.has_landed() ||
+        self.world.player.lives <= 0
+    }
 }
 
 impl GameState for PlayState{
     fn update(&mut self, keys: &mut HashMap<Keycode, bool>, _: &mut Context, delta: Duration) -> GameResult<(usize)> {
+        let lost = self.did_lose();
         for (key, value) in keys.drain() {
-            match (key, value) {
-                (Keycode::Q, true) => {
+            match (key, value, lost) {
+                (Keycode::Q, true, _) => {
                     return Ok(0);
                 },
-                (Keycode::Right, val) => {
+                (Keycode::Right, val, false) => {
                     let dx = self.world.player.velocity.dx;
                     self.world.player.velocity.dx = if val { 1.0 } else { 
                         if dx == 1.0 {
@@ -92,7 +109,7 @@ impl GameState for PlayState{
                         }
                     };
                 },
-                (Keycode::Left, val) => {
+                (Keycode::Left, val, false) => {
                     let dx = self.world.player.velocity.dx;
                     self.world.player.velocity.dx = if val { -1.0 } else { 
                         if dx == -1.0 {
@@ -102,22 +119,29 @@ impl GameState for PlayState{
                         }
                     };
                 },
-                (Keycode::Space, true) => {
+                (Keycode::Space, true, false) => {
                     self.world.player.fire(&mut self.world.bullets);
                 },
                 _ => {
                 }
             }
         }
-        self.world.player.update(delta);
-        self.world.invaders.update(delta, &mut self.world.bullets);
-        self.update_bullets(delta);
+        if !lost {
+            self.world.player.update(delta);
+            self.world.invaders.update(delta, &mut self.world.bullets);
+            self.update_bullets(delta);
+        }
         Ok(1)
     }
 
     fn draw(&self, _: &MainState, ctx: &mut Context) -> GameResult<()> {
         self.draw_world(ctx)?;
-        self.draw_info(ctx)?;
+        let lost = self.did_lose();
+        if lost {
+            self.draw_losing_screen(ctx)?;
+        } else {
+            self.draw_info(ctx)?;
+        }
         Ok(())
     }
 }
